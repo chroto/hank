@@ -19,6 +19,7 @@ type bucketDownloader struct {
 	totalFiles        uint64
 	totalBytes        uint64
 	bucket            *s3.Bucket
+    marker            string
 	concurrency       uint
 	targetPath        string
 	keyQueue          chan *s3.Key
@@ -27,9 +28,10 @@ type bucketDownloader struct {
 	downloadWaitGroup sync.WaitGroup
 }
 
-func NewBucketDownloader(bucket *s3.Bucket, targetPath string, concurrency uint) *bucketDownloader {
+func NewBucketDownloader(bucket *s3.Bucket, marker string, targetPath string, concurrency uint) *bucketDownloader {
 	downloader := bucketDownloader{
 		bucket:        bucket,
+        marker:        marker,
 		targetPath:    targetPath,
 		concurrency:   concurrency,
 		seenFilePaths: make(map[string]bool),
@@ -49,8 +51,8 @@ func (downloader *bucketDownloader) Run() map[string]bool {
 }
 
 func (downloader *bucketDownloader) listContents() {
-	marker := ""
-
+    marker := ""
+    marker = downloader.marker
 	for {
 		sourceList, err := downloader.bucket.List("", "", marker, 1000)
 		if err != nil {

@@ -13,6 +13,7 @@ var (
 	awsAccessKey        string
 	awsSecretKey        string
 	awsBucket           string
+    awsMarker           string
 	awsRegion           = "eu-west-1"
 	localRootPath       string
 	downloadConcurrency uint = 8
@@ -28,6 +29,7 @@ func initFlags() {
 	flag.StringVar(&awsAccessKey, "access-key", "", "AWS Access Key")
 	flag.StringVar(&awsSecretKey, "secret-key", "", "AWS Secret Key")
 	flag.StringVar(&awsBucket, "bucket", "", "S3 Bucket")
+    flag.StringVar(&awsMarker, "path", "", "S3 Prefix")
 	flag.StringVar(&awsRegion, "region", awsRegion, "S3 Region")
 
 	flag.Parse()
@@ -67,7 +69,7 @@ func main() {
 	log.Printf("Starting bucket sync from %v to %v", awsBucket, localRootPath)
 
 	bucket := newBucketConnection()
-	downloader := NewBucketDownloader(bucket, localRootPath, downloadConcurrency)
+	downloader := NewBucketDownloader(bucket, awsMarker, localRootPath, downloadConcurrency)
 	seenFiles := downloader.Run()
 
 	deleter := NewBucketDeleter(localRootPath, seenFiles)
