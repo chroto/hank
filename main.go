@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+    "goconf/conf"
 	"launchpad.net/goamz/aws"
 	"launchpad.net/goamz/s3"
 	"log"
@@ -26,6 +27,12 @@ func newBucketConnection() (bucket *s3.Bucket) {
 }
 
 func initFlags() {
+    c, err := conf.ReadConfigFile("aws.conf")
+    if err != nil {
+        log.Fatal(err)
+    }
+    key, err := c.GetString("default", "access-key")
+    secret, err := c.GetString("default", "secret-key")
 	flag.StringVar(&awsAccessKey, "access-key", "", "AWS Access Key")
 	flag.StringVar(&awsSecretKey, "secret-key", "", "AWS Secret Key")
 	flag.StringVar(&awsBucket, "bucket", "", "S3 Bucket")
@@ -34,6 +41,13 @@ func initFlags() {
 
 	flag.Parse()
 	args := flag.Args()
+
+    if awsAccessKey == "" {
+        awsAccessKey = key
+    }
+    if awsSecretKey == "" {
+        awsSecretKey = secret
+    }
 
 	if len(args) > 0 {
 		localRootPath = args[0]
