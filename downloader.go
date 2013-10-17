@@ -134,6 +134,7 @@ func (downloader *bucketDownloader) handleDownloadQueue() {
 			break
 		}
 
+        log.Printf("Starting Download: %v", key.Key)
 		downloader.downloadKey(key)
 
 		atomic.AddUint64(&downloader.syncedFiles, 1)
