@@ -51,10 +51,10 @@ func (downloader *bucketDownloader) Run() map[string]bool {
 }
 
 func (downloader *bucketDownloader) listContents() {
-    marker := ""
-    marker = downloader.marker
+    prefix := downloader.marker
+    marker := downloader.marker
 	for {
-		sourceList, err := downloader.bucket.List("", "", marker, 1000)
+		sourceList, err := downloader.bucket.List(prefix, "", marker, 1000)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -174,10 +174,10 @@ func (downloader *bucketDownloader) downloadKey(key *s3.Key) {
 	}
 
 	bucketReader, err := downloader.bucket.GetReader(key.Key)
-	defer bucketReader.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer bucketReader.Close()
 
 	bytes, err := io.Copy(fileWriter, bucketReader)
 	if err != nil {
